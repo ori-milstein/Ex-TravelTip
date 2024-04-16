@@ -2,7 +2,11 @@ import { utilService } from './services/util.service.js'
 import { locService } from './services/loc.service.js'
 import { mapService } from './services/map.service.js'
 
+
 window.onload = onInit
+var gUserPos
+//navigator.geolocation.getCurrentPosition(positon => console.log(positon))
+
 
 // To make things easier in this project structure 
 // functions that are called from DOM are defined on a global app object
@@ -34,12 +38,17 @@ function onInit() {
 
 function renderLocs(locs) {
     const selectedLocId = getLocIdFromQueryParams()
-    // console.log('locs:', locs)
+    mapService.addClickListener(console.log('geo'))
     var strHTML = locs.map(loc => {
+        var distance
+        if (gUserPos) distance = utilService.getDistance({ lat: loc.geo.lat, lng: loc.geo.lng }, gUserPos, 'k')
+        else distance = 'alow location to see distance'
         const className = (loc.id === selectedLocId) ? 'active' : ''
         return `
         <li class="loc ${className}" data-id="${loc.id}">
             <h4>  
+            //   <span>${distance}</span> 
+   
                 <span>${loc.name}</span>
                 <span title="${loc.rate} stars">${'★'.repeat(loc.rate)}</span>
             </h4>
@@ -69,6 +78,7 @@ function renderLocs(locs) {
 }
 
 function onRemoveLoc(locId) {
+    if (!confirm('are you shure')) return
     locService.remove(locId)
         .then(() => {
             flashMsg('Location removed')
@@ -95,6 +105,7 @@ function onSearchAddress(ev) {
 }
 
 function onAddLoc(geo) {
+    mapService.addClickListener()
     const locName = prompt('Loc name', geo.address || 'Just a place')
     if (!locName) return
 
@@ -131,6 +142,8 @@ function onPanToUserPos() {
             unDisplayLoc()
             loadAndRenderLocs()
             flashMsg(`You are at Latitude: ${latLng.lat} Longitude: ${latLng.lng}`)
+            gUserPos = { lat: latLng.lat, lng: latLng.lng }
+
         })
         .catch(err => {
             console.error('OOPs:', err)

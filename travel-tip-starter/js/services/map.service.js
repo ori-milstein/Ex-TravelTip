@@ -9,7 +9,7 @@ export const mapService = {
 }
 
 // TODO: Enter your API Key
-const API_KEY = 'AIzaSyCA9lhu-WxSO6PCnTkiTyWaW4GW4Oqh2MU'
+const API_KEY = `AIzaSyBaUgpvMeq9Dbo6VSYvwwCVP_uNSSntwAM`
 var gMap
 var gMarker
 
@@ -62,6 +62,7 @@ function lookupAddressGeo(geoOrAddress) {
 function addClickListener(cb) {
     gMap.addListener('click', (mapsMouseEvent) => {
         const geo = { lat: mapsMouseEvent.latLng.lat(), lng: mapsMouseEvent.latLng.lng() }
+        console.log(geo);
         lookupAddressGeo(geo).then(cb)
     })
 }
