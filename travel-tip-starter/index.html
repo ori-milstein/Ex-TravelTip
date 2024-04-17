@@ -46,6 +46,7 @@
                         <select class="sort-by" onchange="app.onSetSortBy()">
                             <option value="name">Name</option>
                             <option value="rate" selected>Rate</option>
+                            <option value="created">Date</option>
                         </select>
                         <label>
                             <input class="sort-desc" type="checkbox" oninput="app.onSetSortBy()" />
@@ -59,6 +60,11 @@
                     <h3>Statistics</h3>
                     <div class="loc-stats-rate">
                         <h4>By rate:</h4>
+                        <div class="pie"></div>
+                        <ul class="legend"></ul>
+                    </div>
+                    <div class="loc-stats-updated">
+                        <h4>By Update Time:</h4>
                         <div class="pie"></div>
                         <ul class="legend"></ul>
                     </div>
