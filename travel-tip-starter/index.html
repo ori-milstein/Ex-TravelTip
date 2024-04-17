@@ -18,7 +18,9 @@
             <button onclick="app.onShareLoc()">Share location</button>
             <input name="loc-copier" />
         </section>
+      
         <form class="form-search" onsubmit="app.onSearchAddress(event)">
+            
             <input type="text" name="address" placeholder="Search address" />
             <button title="Search">🔍</button>
             <button type="button" title="My Position" onclick="app.onPanToUserPos()" class="btn-user-pos">&nbsp;
@@ -68,6 +70,16 @@
     </main>
     <pre class="debug" hidden></pre>
     <div class="user-msg"></div>
+    <dialog class="modal">
+        <form method="dialog" class="form-edit" onsubmit="app.onUpdateLocc(event)">
+            <label for="rate">rate</label> <br>
+            <input class="rate-input" type="text" id="rate"><br>
+            <label for="name">name</label> <br>
+            <input placeholder="" class="name-input" type="text" id="name"> <br>
+            <button type="submit">confirm1</button>      
+        </form>
+    </dialog>
+
     <script type="module" src="js/app.controller.js"></script>
 </body>
 
