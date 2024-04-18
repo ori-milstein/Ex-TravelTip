@@ -45,18 +45,21 @@ function renderLocs(locs) {
     // mapService.addClickListener(console.log('geo'))
     var strHTML = locs.map(loc => {
         var distance
-        if (gUserPos) distance = utilService.getDistance({ lat: loc.geo.lat, lng: loc.geo.lng }, gUserPos, 'k')
-        else distance = 'alow location to see distance'
+        if (gUserPos) distance = 'Distance: ' + utilService.getDistance({ lat: loc.geo.lat, lng: loc.geo.lng }, gUserPos, 'K') + ' km'
+        else distance = ''
         const className = (loc.id === selectedLocId) ? 'active' : ''
         return `
         <li class="loc ${className}" data-id="${loc.id}">
-            <h4>  
-            //   <span>${distance}</span> 
-   
+            <h4>     
                 <span>${loc.name}</span>
+                
                 <span title="${loc.rate} stars">${'★'.repeat(loc.rate)}</span>
             </h4>
+            <p>
+            ${distance}
+            </p>
             <p class="muted">
+                
                 Created: ${utilService.elapsedTime(loc.createdAt)}
                 ${(loc.createdAt !== loc.updatedAt) ?
                 ` | Updated: ${utilService.elapsedTime(loc.updatedAt)}`
