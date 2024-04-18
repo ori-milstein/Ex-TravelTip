@@ -2,11 +2,17 @@ import { utilService } from './services/util.service.js'
 import { locService } from './services/loc.service.js'
 import { mapService } from './services/map.service.js'
 
+
 window.onload = onInit
+var gUserPos
+//navigator.geolocation.getCurrentPosition(positon => console.log(positon))
+
 
 // To make things easier in this project structure 
 // functions that are called from DOM are defined on a global app object
 window.app = {
+
+    closeModal,
     onRemoveLoc,
     onUpdateLoc,
     onSelectLoc,
@@ -16,6 +22,8 @@ window.app = {
     onShareLoc,
     onSetSortBy,
     onSetFilterBy,
+    onMoveToUpdate,
+    onUpdateLocc
 }
 
 function onInit() {
@@ -34,12 +42,17 @@ function onInit() {
 
 function renderLocs(locs) {
     const selectedLocId = getLocIdFromQueryParams()
-    // console.log('locs:', locs)
+    // mapService.addClickListener(console.log('geo'))
     var strHTML = locs.map(loc => {
+        var distance
+        if (gUserPos) distance = utilService.getDistance({ lat: loc.geo.lat, lng: loc.geo.lng }, gUserPos, 'k')
+        else distance = 'alow location to see distance'
         const className = (loc.id === selectedLocId) ? 'active' : ''
         return `
         <li class="loc ${className}" data-id="${loc.id}">
             <h4>  
+            //   <span>${distance}</span> 
+   
                 <span>${loc.name}</span>
                 <span title="${loc.rate} stars">${'★'.repeat(loc.rate)}</span>
             </h4>
@@ -51,7 +64,7 @@ function renderLocs(locs) {
             </p>
             <div class="loc-btns">     
                <button title="Delete" onclick="app.onRemoveLoc('${loc.id}')">🗑️</button>
-               <button title="Edit" onclick="app.onUpdateLoc('${loc.id}')">✏️</button>
+               <button title="Edit" onclick="app.onMoveToUpdate('${loc.id}')">✏️</button>
                <button title="Select" onclick="app.onSelectLoc('${loc.id}')">🗺️</button>
             </div>     
         </li>`}).join('')
@@ -69,6 +82,7 @@ function renderLocs(locs) {
 }
 
 function onRemoveLoc(locId) {
+    if (!confirm('are you shure')) return
     locService.remove(locId)
         .then(() => {
             flashMsg('Location removed')
@@ -83,6 +97,7 @@ function onRemoveLoc(locId) {
 
 function onSearchAddress(ev) {
     ev.preventDefault()
+    console.log(ev);
     const el = document.querySelector('[name=address]')
     mapService.lookupAddressGeo(el.value)
         .then(geo => {
@@ -95,6 +110,9 @@ function onSearchAddress(ev) {
 }
 
 function onAddLoc(geo) {
+    console.log('tt');
+    mapService.addClickListener()
+    // openModal()
     const locName = prompt('Loc name', geo.address || 'Just a place')
     if (!locName) return
 
@@ -131,6 +149,8 @@ function onPanToUserPos() {
             unDisplayLoc()
             loadAndRenderLocs()
             flashMsg(`You are at Latitude: ${latLng.lat} Longitude: ${latLng.lng}`)
+            gUserPos = { lat: latLng.lat, lng: latLng.lng }
+
         })
         .catch(err => {
             console.error('OOPs:', err)
@@ -138,10 +158,42 @@ function onPanToUserPos() {
         })
 }
 
-function onUpdateLoc(locId) {
+function onMoveToUpdate(id) {
+
+    locService.getById(id).then(loc => {
+        openModal()
+        const elModal = document.querySelector('.modal')
+        // elModal.addEventListener("click", function (event) {
+        //     event.preventDefault()
+        //  })
+        elModal.querySelector('.rate-input').placeholder = loc.rate
+        elModal.querySelector('.form-edit').setAttribute("id", id)
+
+    }
+    )
+
+
+
+}
+function onUpdateLocc(ev) {
+    console.log('ev');
+    ev.preventDefault()
+    console.log(ev)
+    var elForm = document.querySelector('.form-edit')
+    var id = elForm.getAttribute("id")
+    var rate = document.querySelector('.rate-input').value
+
+    onUpdateLoc(id, rate)
+    closeModal()
+}
+
+function onUpdateLoc(locId, rate) {
+
     locService.getById(locId)
         .then(loc => {
-            const rate = prompt('New rate?', loc.rate)
+
+            //   const rate = prompt('New rate?', loc.rate)
+
             if (rate !== loc.rate) {
                 loc.rate = rate
                 locService.save(loc)
@@ -306,4 +358,15 @@ function cleanStats(stats) {
         return acc
     }, [])
     return cleanedStats
+}
+
+
+function openModal() {
+    const elModal = document.querySelector('.modal')
+    elModal.showModal()
+}
+
+function closeModal() {
+    const elModal = document.querySelector('.modal')
+    elModal.close()
 }
